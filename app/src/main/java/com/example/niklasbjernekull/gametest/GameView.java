@@ -420,6 +420,7 @@ class GameView extends SurfaceView implements Runnable {
             tree.draw(canvas);
             tree.setPos(750, 30);
 
+            //Paint transparent rectangle with rounded corners
             /*Paint roundPaint = new Paint();
             roundPaint.setColor(Color.argb(220,  255, 255, 255));
             canvas.drawRoundRect(boxSize/2, boxSize*2, width-boxSize/2, height-boxSize*2, 100, 100, roundPaint);*/
