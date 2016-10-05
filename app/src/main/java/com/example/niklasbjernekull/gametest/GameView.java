@@ -370,11 +370,6 @@ class GameView extends SurfaceView implements Runnable {
             // Make the text a bit bigger
             paint.setTextSize(45);
 
-            // Display the current fps on the screen
-            /*canvas.drawText("FPS: " + fps, 20, 40, paint);
-            canvas.drawText("Width: " + width, 20, 80, paint);
-            canvas.drawText("Height: " + height, 20, 120, paint);*/
-
             // Draw water
             Paint backgroundPaint = new Paint();
             backgroundPaint.setColor(Color.argb(255,  0, 100, 255));
@@ -425,10 +420,19 @@ class GameView extends SurfaceView implements Runnable {
             roundPaint.setColor(Color.argb(220,  255, 255, 255));
             canvas.drawRoundRect(boxSize/2, boxSize*2, width-boxSize/2, height-boxSize*2, 100, 100, roundPaint);*/
 
+            debugDraw(canvas);
+
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
         }
 
+    }
+
+    private void debugDraw(Canvas canvas) {
+        // Display the current fps on the screen
+        canvas.drawText("FPS: " + fps, 20, 40, paint);
+        /*canvas.drawText("Width: " + width, 20, 80, paint);
+        canvas.drawText("Height: " + height, 20, 120, paint);*/
     }
 
     private void initIfNeeded() {
