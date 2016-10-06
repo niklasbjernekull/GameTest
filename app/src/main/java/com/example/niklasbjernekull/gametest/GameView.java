@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.example.niklasbjernekull.gametest.constants.GameStates;
 import com.example.niklasbjernekull.gametest.drawables.animatedDecoration.Coin;
 import com.example.niklasbjernekull.gametest.drawables.animatedDecoration.directable.Ember;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Flower;
@@ -30,6 +31,10 @@ import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Water;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.collections.RockPaths;
 import com.example.niklasbjernekull.gametest.game.Game;
 import com.example.niklasbjernekull.gametest.game.path.PathPieceHandler;
+import com.example.niklasbjernekull.gametest.gameData.GameData;
+import com.example.niklasbjernekull.gametest.splashScreen.SplashScreen;
+
+import static com.example.niklasbjernekull.gametest.constants.GameStates.GAME_SPLASH_SCREEN;
 
 // Notice we implement runnable so we have
 // A thread and can override the run method.
@@ -58,7 +63,12 @@ class GameView extends SurfaceView implements Runnable {
 
     private boolean firstTime = true;
 
+    private GameStateView gameState;
+    private SplashScreen splashScreen;
     private Game game;
+
+    private GameData gameData;
+
 
     // When the we initialize (call new()) on gameView
     // This special constructor method runs
@@ -71,8 +81,12 @@ class GameView extends SurfaceView implements Runnable {
         // Initialize ourHolder and paint objects
         ourHolder = getHolder();
 
+        gameData = new GameData();
+
+        splashScreen = new SplashScreen(this.getResources(), gameData);
         game = new Game(this.getResources());
 
+        gameState = splashScreen;
     }
 
     @Override
@@ -105,7 +119,24 @@ class GameView extends SurfaceView implements Runnable {
     // In later projects we will have dozens (arrays) of objects.
     // We will also do other things like collision detection.
     public void update() {
-        game.update();
+        if(gameData.hasStateChanged())
+            changeGameState();
+
+        gameState.update();
+    }
+
+    private void changeGameState() {
+        switch (gameData.getState()) {
+
+            case GameStates.GAME_SPLASH_SCREEN:
+                gameState = splashScreen;
+                break;
+
+            case GameStates.GAME:
+                gameState = game;
+                break;
+
+        }
     }
 
 
@@ -118,7 +149,7 @@ class GameView extends SurfaceView implements Runnable {
             // Lock the canvas ready to draw
             canvas = ourHolder.lockCanvas();
 
-            game.draw(canvas);
+            gameState.draw(canvas);
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
@@ -154,7 +185,7 @@ class GameView extends SurfaceView implements Runnable {
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
 
-        game.input(motionEvent);
+        gameState.input(motionEvent);
         return true;
     }
 }

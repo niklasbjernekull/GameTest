@@ -2,6 +2,8 @@ package com.example.niklasbjernekull.gametest.drawables;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.util.Log;
 
 /**
  * Created by Niklas.bjernekull on 2016-09-28.
@@ -31,6 +33,13 @@ public class DrawableImage {
 
     public void draw(Canvas canvas) {
         canvas.drawBitmap(image, x, y, null);
+    }
+
+    public void draw(Canvas canvas, int alphaValue) {
+        Log.i("Draw Canvas", "Alpha Value: " + alphaValue);
+        Paint alphaPaint = new Paint();
+        alphaPaint.setAlpha(alphaValue);
+        canvas.drawBitmap(image, x, y, alphaPaint);
     }
 
     public void setX(int in_x) {

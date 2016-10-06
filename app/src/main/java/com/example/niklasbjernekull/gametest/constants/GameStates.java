@@ -7,8 +7,8 @@ package com.example.niklasbjernekull.gametest.constants;
  */
 
 public class GameStates {
-    public static int GAME_SPLASH_SCREEN = 0;
-    public static int GAME_MAIN_MENU = 1;
-    public static int GAME_WORLD_MAP = 2;
-    public static int GAME = 3;
+    public static final int GAME_SPLASH_SCREEN = 0;
+    public static final int GAME_MAIN_MENU = 1;
+    public static final int GAME_WORLD_MAP = 2;
+    public static final int GAME = 3;
 }
