@@ -28,7 +28,7 @@ public class SplashScreen implements GameStateView {
     public SplashScreen(Resources res, GameData in_data) {
         startTime = System.currentTimeMillis();
 
-        logo = new DrawableImage(BitmapFactory.decodeResource(res, R.drawable.rendan));
+        logo = new DrawableImage(BitmapFactory.decodeResource(res, R.drawable.skull));
         logo.scale(500, 500);
 
         gameData = in_data;
@@ -37,8 +37,9 @@ public class SplashScreen implements GameStateView {
     @Override
     public void update() {
         if(alpha < 255 && fps > 0) {
-            Log.i("Splash screen", "Fps: " + (200/fps));
-            alpha += 200/fps; // 1/fps = +1 (total) each second
+            alpha += 100/fps; // 1/fps = +1 (total) each second
+        } else if (alpha > 255) {
+            alpha = 255;
         }
     }
 
@@ -50,7 +51,6 @@ public class SplashScreen implements GameStateView {
         canvas.drawColor(Color.WHITE);
 
         logo.setPos(width/2-250, height/2-250);
-        Log.i("Splash Screen", "Alpha Value: " + alpha);
         logo.draw(canvas, (int) alpha);
     }
 

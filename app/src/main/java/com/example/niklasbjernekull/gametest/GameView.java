@@ -108,7 +108,7 @@ class GameView extends SurfaceView implements Runnable {
             timeThisFrame = System.currentTimeMillis() - startFrameTime;
             if (timeThisFrame > 0) {
                 fps = 1000 / timeThisFrame;
-                game.setFps(fps);
+                gameState.setFps(fps);
             }
 
         }
@@ -121,7 +121,6 @@ class GameView extends SurfaceView implements Runnable {
     public void update() {
         if(gameData.hasStateChanged())
             changeGameState();
-
         gameState.update();
     }
 
