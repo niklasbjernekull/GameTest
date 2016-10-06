@@ -1,4 +1,4 @@
-package com.example.niklasbjernekull.gametest;
+package com.example.niklasbjernekull.gametest.game.path;
 
 import android.graphics.Point;
 

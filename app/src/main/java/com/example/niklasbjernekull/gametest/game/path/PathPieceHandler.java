@@ -1,4 +1,4 @@
-package com.example.niklasbjernekull.gametest;
+package com.example.niklasbjernekull.gametest.game.path;
 
 import java.util.ArrayList;
 import java.util.Iterator;
