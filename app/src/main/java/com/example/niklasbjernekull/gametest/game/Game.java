@@ -11,6 +11,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
 import com.example.niklasbjernekull.gametest.GameStateView;
+import com.example.niklasbjernekull.gametest.constants.InGameMenuConstants;
+import com.example.niklasbjernekull.gametest.constants.InGameStates;
 import com.example.niklasbjernekull.gametest.drawables.animatedDecoration.Coin;
 import com.example.niklasbjernekull.gametest.drawables.animatedDecoration.directable.Ember;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Flower;
@@ -22,6 +24,7 @@ import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Star;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Tree;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Water;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.collections.RockPaths;
+import com.example.niklasbjernekull.gametest.game.inGameMenus.GameStartMenu;
 import com.example.niklasbjernekull.gametest.game.path.PathPieceHandler;
 
 /**
@@ -101,11 +104,19 @@ public class Game implements GameStateView {
 
     private PathPieceHandler pathPieces;
 
+    private GameStartMenu gameStartMenu;
+
+    private Resources resources;
+
+    private int gameState = 0;
+
     /**
      * Constructor for Game class
      * @param res
      */
     public Game(Resources res) {
+        resources = res;
+
         initResources(res);
 
         playing = true;
@@ -117,6 +128,8 @@ public class Game implements GameStateView {
     @Override
     public void update() {
 
+        if(gameState != InGameStates.GAME_PLAYING)
+            return;
         // If bob is moving (the player is touching the screen)
         // then move him to the right based on his target speed and the current fps.
         if((moveXDirection != 0 || moveYDirection != 0) && emberXPosition >= 0 && !isDead && !isWin) { // && emberXPosition >= 0
@@ -213,6 +226,9 @@ public class Game implements GameStateView {
 
         debugDraw(canvas);
 
+        if(gameState == InGameStates.GAME_START_MENU)
+            gameStartMenu.draw(canvas);
+
     }
 
     // The SurfaceView class implements onTouchListener
@@ -226,18 +242,24 @@ public class Game implements GameStateView {
             case MotionEvent.ACTION_DOWN:
 
                 Log.i(Game.class.toString(), "Touched at [" + motionEvent.getX() + ", " + motionEvent.getY() + "]");
-                if(isWithinGrid(motionEvent.getX(), motionEvent.getY()) && !isDead && !isWin) {
-                    Log.i(Game.class.toString(), "Touched within grid");
-                    Point p = getBox((int) motionEvent.getX(), (int) motionEvent.getY());
-                    Log.i(Game.class.toString(), "Box gotten [" + p.x + ", " + p.y + "]");
-                    boolean success = pathPieces.addPathPiece(p.x, p.y, nextType);
-                    if(success) {
-                        Log.i(Game.class.toString(), "Success, change path piece!");
-                        nextType = getNextType();
+
+                if(gameState == InGameStates.GAME_PLAYING) {
+                    if (isWithinGrid(motionEvent.getX(), motionEvent.getY()) && !isDead && !isWin) {
+                        Log.d(Game.class.toString(), "Touched within grid");
+                        Point p = getBox((int) motionEvent.getX(), (int) motionEvent.getY());
+                        Log.d(Game.class.toString(), "Box gotten [" + p.x + ", " + p.y + "]");
+                        boolean success = pathPieces.addPathPiece(p.x, p.y, nextType);
+                        if (success) {
+                            Log.d(Game.class.toString(), "Success, change path piece!");
+                            nextType = getNextType();
+                        }
+                    } else if (isDead || isWin) {
+                        reset();
                     }
-                } else if(isDead || isWin) {
-                    reset();
                 }
+
+                if(gameStartMenu != null && gameState == InGameStates.GAME_START_MENU)
+                    gameStartMenu.onTouchPress((int)motionEvent.getX(), (int)motionEvent.getY());
 
                 break;
 
@@ -246,6 +268,9 @@ public class Game implements GameStateView {
 
                 // Set isMoving so Bob does not move
                 //isMoving = false;
+                if(gameStartMenu != null && gameState == InGameStates.GAME_START_MENU)
+                    if(gameStartMenu.onTouchRelease((int)motionEvent.getX(), (int)motionEvent.getY()) == InGameMenuConstants.OK_BUTTON_PRESSED)
+                        gameState = InGameStates.GAME_PLAYING;
 
                 break;
         }
@@ -460,6 +485,8 @@ public class Game implements GameStateView {
         pathPieces = new PathPieceHandler();
 
         water.scale(boxSize, boxSize);
+
+        gameStartMenu = new GameStartMenu(width, height, boxSize/2, resources);
     }
 
     private void drawWater(Canvas canvas) {
@@ -621,7 +648,7 @@ public class Game implements GameStateView {
     private boolean isWithinGrid(float x, float y) {
         if(x >= roadWidth && x < boxSize*numberOfBoxesWidth + roadWidth &&
                 y >= roadHeight && y < boxSize*numberOfBoxesHeight + roadHeight) {
-            Log.i(Game.class.toString(), "In grid [" + x + ", " + y + "].");
+            Log.d(Game.class.toString(), "In grid [" + x + ", " + y + "].");
             return true;
         }
 
@@ -648,9 +675,9 @@ public class Game implements GameStateView {
         int box_x = relative_x/boxSize;
         int box_y = relative_y/boxSize;
 
-        Log.i(Game.class.toString(), "Max grid size [" + boxSize*numberOfBoxesWidth + ", " + boxSize*numberOfBoxesHeight + "].");
-        Log.i(Game.class.toString(), "Relative pos [" + relative_x + ", " + relative_y + "].");
-        Log.i(Game.class.toString(), "Return box [" + box_x + ", " + box_y + "].");
+        Log.d(Game.class.toString(), "Max grid size [" + boxSize*numberOfBoxesWidth + ", " + boxSize*numberOfBoxesHeight + "].");
+        Log.d(Game.class.toString(), "Relative pos [" + relative_x + ", " + relative_y + "].");
+        Log.d(Game.class.toString(), "Return box [" + box_x + ", " + box_y + "].");
         return new Point(box_x, box_y);
     }
 }
