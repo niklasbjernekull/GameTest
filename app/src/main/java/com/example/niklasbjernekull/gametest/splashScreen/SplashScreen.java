@@ -28,7 +28,7 @@ public class SplashScreen implements GameStateView {
     public SplashScreen(Resources res, GameData in_data) {
         startTime = System.currentTimeMillis();
 
-        logo = new DrawableImage(BitmapFactory.decodeResource(res, R.drawable.skull));
+        logo = new DrawableImage(BitmapFactory.decodeResource(res, R.drawable.rendan));
         logo.scale(500, 500);
 
         gameData = in_data;
