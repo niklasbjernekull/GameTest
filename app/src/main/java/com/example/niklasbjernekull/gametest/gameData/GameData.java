@@ -1,12 +1,14 @@
 package com.example.niklasbjernekull.gametest.gameData;
 
+import com.example.niklasbjernekull.gametest.constants.GameStates;
+
 /**
  * Created by Niklas.bjernekull on 2016-10-06.
  */
 
 public class GameData {
     private boolean stateChanged = false;
-    private int currentState = 0;
+    private int currentState = GameStates.GAME_NOT_INITIATED;
 
     public boolean hasStateChanged() {
         return stateChanged;

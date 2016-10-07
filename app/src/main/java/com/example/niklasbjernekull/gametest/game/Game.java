@@ -1,6 +1,5 @@
 package com.example.niklasbjernekull.gametest.game;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -8,9 +7,10 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
 
+import com.example.niklasbjernekull.gametest.AbstractGameStateView;
 import com.example.niklasbjernekull.gametest.GameStateView;
+import com.example.niklasbjernekull.gametest.constants.GameStates;
 import com.example.niklasbjernekull.gametest.constants.InGameMenuConstants;
 import com.example.niklasbjernekull.gametest.constants.InGameStates;
 import com.example.niklasbjernekull.gametest.drawables.animatedDecoration.Coin;
@@ -26,12 +26,13 @@ import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Water;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.collections.RockPaths;
 import com.example.niklasbjernekull.gametest.game.inGameMenus.GameStartMenu;
 import com.example.niklasbjernekull.gametest.game.path.PathPieceHandler;
+import com.example.niklasbjernekull.gametest.gameData.GameData;
 
 /**
  * Created by Niklas.bjernekull on 2016-10-06.
  */
 
-public class Game implements GameStateView {
+public class Game extends AbstractGameStateView implements GameStateView {
     // This is our thread
     //Thread gameThread = null;
 
@@ -54,7 +55,6 @@ public class Game implements GameStateView {
     // This is used to help calculate the fps
     //private long timeThisFrame;
 
-    private boolean firstTime = true;
     // Declare an object of type Bitmap
     //Bitmap bitmapBob;
 
@@ -69,9 +69,6 @@ public class Game implements GameStateView {
     private float emberYPosition = -1;
     private int moveXDirection = 0;
     private int moveYDirection = -1;
-
-    private int width;
-    private int height;
 
     private static int numberOfBoxesWidth = 5;
     private static int numberOfBoxesHeight = 8;
@@ -108,14 +105,17 @@ public class Game implements GameStateView {
 
     private Resources resources;
 
-    private int gameState = 0;
+    private int gameState = InGameStates.GAME_START_MENU;
 
     /**
      * Constructor for Game class
      * @param res
      */
-    public Game(Resources res) {
+    public Game(Resources res, GameData in_data, int in_width, int in_height) {
+        super(in_data, in_width, in_height);
         resources = res;
+
+        initAtCreation();
 
         initResources(res);
 
@@ -167,14 +167,6 @@ public class Game implements GameStateView {
     // Draw the newly updated scene
     @Override
     public void draw(Canvas canvas) {
-
-        if(firstTime) {
-            width = canvas.getWidth();
-            height = canvas.getHeight();
-
-            initIfNeeded();
-            firstTime = false;
-        }
 
         // Draw the background color
         canvas.drawColor(Color.argb(255,  140, 200, 22));
@@ -324,6 +316,7 @@ public class Game implements GameStateView {
         road = new Road(res);
 
         water = new Water(res);
+        water.scale(boxSize, boxSize);
     }
 
 
@@ -469,7 +462,7 @@ public class Game implements GameStateView {
         canvas.drawText("Height: " + height, 20, 120, debugPaint);*/
     }
 
-    private void initIfNeeded() {
+    private void initAtCreation() {
         calculateBoxAndRoadSize();
 
         emberXPosition = roadWidth/2;
@@ -483,8 +476,6 @@ public class Game implements GameStateView {
         roadLength = (height - roadHeight/2) + (roadWidth/2 + ((numberOfBoxesWidth*boxSize)/2)) + roadHeight/2;
 
         pathPieces = new PathPieceHandler();
-
-        water.scale(boxSize, boxSize);
 
         gameStartMenu = new GameStartMenu(width, height, boxSize/2, resources);
     }

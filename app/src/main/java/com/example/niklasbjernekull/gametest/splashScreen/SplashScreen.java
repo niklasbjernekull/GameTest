@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.example.niklasbjernekull.gametest.AbstractGameStateView;
 import com.example.niklasbjernekull.gametest.GameStateView;
 import com.example.niklasbjernekull.gametest.R;
 import com.example.niklasbjernekull.gametest.constants.GameStates;
@@ -17,19 +18,20 @@ import com.example.niklasbjernekull.gametest.gameData.GameData;
  * Created by Niklas.bjernekull on 2016-10-06.
  */
 
-public class SplashScreen implements GameStateView {
+public class SplashScreen extends AbstractGameStateView implements GameStateView {
     private long startTime;
     private long waitTimeMs = 3000;
     private DrawableImage logo;
-    private GameData gameData;
     private float alpha = 0;
     private long fps = 0;
 
-    public SplashScreen(Resources res, GameData in_data) {
+    public SplashScreen(Resources res, GameData in_data, int in_width, int in_height) {
+        super(in_data, in_width, in_height);
         startTime = System.currentTimeMillis();
 
         logo = new DrawableImage(BitmapFactory.decodeResource(res, R.drawable.rendan));
-        logo.scale(500, 500);
+        logo.scale(width/2, width/2);
+        logo.setPos(width/2-width/4, height/2-width/4);
 
         gameData = in_data;
     }
@@ -45,12 +47,9 @@ public class SplashScreen implements GameStateView {
 
     @Override
     public void draw(Canvas canvas) {
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
 
         canvas.drawColor(Color.WHITE);
 
-        logo.setPos(width/2-250, height/2-250);
         logo.draw(canvas, (int) alpha);
     }
 

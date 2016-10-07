@@ -63,7 +63,7 @@ class GameView extends SurfaceView implements Runnable {
 
     private boolean firstTime = true;
 
-    private GameStateView gameState;
+    private GameStateView gameStateView;
     private SplashScreen splashScreen;
     private Game game;
 
@@ -82,11 +82,6 @@ class GameView extends SurfaceView implements Runnable {
         ourHolder = getHolder();
 
         gameData = new GameData();
-
-        splashScreen = new SplashScreen(this.getResources(), gameData);
-        game = new Game(this.getResources());
-
-        gameState = splashScreen;
     }
 
     @Override
@@ -108,7 +103,9 @@ class GameView extends SurfaceView implements Runnable {
             timeThisFrame = System.currentTimeMillis() - startFrameTime;
             if (timeThisFrame > 0) {
                 fps = 1000 / timeThisFrame;
-                gameState.setFps(fps);
+
+                if(gameStateView != null)
+                    gameStateView.setFps(fps);
             }
 
         }
@@ -121,18 +118,20 @@ class GameView extends SurfaceView implements Runnable {
     public void update() {
         if(gameData.hasStateChanged())
             changeGameState();
-        gameState.update();
+
+        if(gameStateView != null)
+            gameStateView.update();
     }
 
     private void changeGameState() {
         switch (gameData.getState()) {
 
             case GameStates.GAME_SPLASH_SCREEN:
-                gameState = splashScreen;
+                gameStateView = splashScreen;
                 break;
 
             case GameStates.GAME:
-                gameState = game;
+                gameStateView = game;
                 break;
 
         }
@@ -148,7 +147,12 @@ class GameView extends SurfaceView implements Runnable {
             // Lock the canvas ready to draw
             canvas = ourHolder.lockCanvas();
 
-            gameState.draw(canvas);
+            if(firstTime) {
+                initialConfiguration();
+                firstTime = false;
+            }
+
+            gameStateView.draw(canvas);
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
@@ -156,12 +160,21 @@ class GameView extends SurfaceView implements Runnable {
 
     }
 
+    private void initialConfiguration() {
+        splashScreen = new SplashScreen(this.getResources(), gameData, canvas.getWidth() ,canvas.getHeight());
+        game = new Game(this.getResources(), gameData, canvas.getWidth(), canvas.getHeight());
+        gameStateView = splashScreen;
+    }
+
 
     // If SimpleGameEngine Activity is paused/stopped
     // shutdown our thread.
     public void pause() {
         playing = false;
-        game.pause();
+
+        if(gameStateView != null)
+            gameStateView.pause();
+
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -174,7 +187,10 @@ class GameView extends SurfaceView implements Runnable {
     // start our thread.
     public void resume() {
         playing = true;
-        game.resume();
+
+        if(gameStateView != null)
+            gameStateView.resume();
+
         gameThread = new Thread(this);
         gameThread.start();
     }
@@ -184,7 +200,8 @@ class GameView extends SurfaceView implements Runnable {
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
 
-        gameState.input(motionEvent);
+        if(gameStateView != null)
+            gameStateView.input(motionEvent);
         return true;
     }
 }
