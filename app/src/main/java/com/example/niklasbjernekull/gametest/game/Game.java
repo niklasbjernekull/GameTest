@@ -82,6 +82,11 @@ public class Game extends AbstractGameStateView implements GameStateView {
     private boolean isDead = false;
     private boolean isWin = false;
 
+    private boolean isDragging = false;
+
+    private int cornerX = 0;
+    private int cornerY = 0;
+
     private Skull skull;
 
     private Tree tree;
@@ -135,20 +140,20 @@ public class Game extends AbstractGameStateView implements GameStateView {
         if((moveXDirection != 0 || moveYDirection != 0) && emberXPosition >= 0 && !isDead && !isWin) { // && emberXPosition >= 0
             emberXPosition += moveXDirection * (roadLength/secondsToArrival/fps);
             emberYPosition += moveYDirection * (roadLength/secondsToArrival/fps);
-            Log.d(Game.class.toString(), "Move speed: " + (roadLength/secondsToArrival/fps));
+            //Log.d(Game.class.toString(), "Move speed: " + (roadLength/secondsToArrival/fps));
 
             ember.stepFrame();
             coin.stepFrame();
 
-            Log.d(Game.class.toString(), "Updating!");
+            /*Log.d(Game.class.toString(), "Updating!");
             Log.d(Game.class.toString(), "Height diff [" + emberYPosition + ", " + (height-bottomBuffer) + "].");
-            Log.d(Game.class.toString(), "Width diff [" + emberXPosition + ", " + (roadWidth + (boxSize*numberOfBoxesWidth)/2) + "].");
+            Log.d(Game.class.toString(), "Width diff [" + emberXPosition + ", " + (roadWidth + (boxSize*numberOfBoxesWidth)/2) + "].");*/
 
             if (isFixedWalking) {
-                Log.d(Game.class.toString(), "Road!");
+                //Log.d(Game.class.toString(), "Road!");
                 moveOnFixedRoad();
             } else if (isWithinGrid(emberXPosition, emberYPosition)) {
-                Log.d(Game.class.toString(), "Path!");
+                //Log.d(Game.class.toString(), "Path!");
                 moveOnAddedPath();
             } else if(emberXPosition ==  roadWidth + (boxSize*numberOfBoxesWidth)/2 && emberYPosition >= height-bottomBuffer) {
                 Log.d(Game.class.toString(), "Is win!");
@@ -232,12 +237,37 @@ public class Game extends AbstractGameStateView implements GameStateView {
 
             // Player has touched the screen
             case MotionEvent.ACTION_DOWN:
-
-                Log.i(Game.class.toString(), "Touched at [" + motionEvent.getX() + ", " + motionEvent.getY() + "]");
+                Log.d(Game.class.toString(), "Touched at [" + motionEvent.getX() + ", " + motionEvent.getY() + "]");
 
                 if(gameState == InGameStates.GAME_PLAYING) {
+                    if (!isDragging && isWithinCornerPiece(motionEvent.getX(), motionEvent.getY())) {
+                        isDragging = true;
+                    }
+                }
+
+                // Handling Start Menu clicks
+                if(gameStartMenu != null && gameState == InGameStates.GAME_START_MENU)
+                    gameStartMenu.onTouchPress((int)motionEvent.getX(), (int)motionEvent.getY());
+
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                if(gameState == InGameStates.GAME_PLAYING) {
+                    if (isDragging) {
+                        cornerX = (int) motionEvent.getX() - boxSize / 2;
+                        cornerY = (int) motionEvent.getY() - boxSize / 2;
+                    }
+                }
+                break;
+
+            // Player has removed finger from screen
+            case MotionEvent.ACTION_UP:
+                if(gameState == InGameStates.GAME_PLAYING) {
+                    isDragging = false;
+                    cornerX = width-boxSize;
+                    cornerY = 0;
                     if (isWithinGrid(motionEvent.getX(), motionEvent.getY()) && !isDead && !isWin) {
-                        Log.d(Game.class.toString(), "Touched within grid");
+                        Log.d(Game.class.toString(), "Dropped within grid");
                         Point p = getBox((int) motionEvent.getX(), (int) motionEvent.getY());
                         Log.d(Game.class.toString(), "Box gotten [" + p.x + ", " + p.y + "]");
                         boolean success = pathPieces.addPathPiece(p.x, p.y, nextType);
@@ -245,27 +275,30 @@ public class Game extends AbstractGameStateView implements GameStateView {
                             Log.d(Game.class.toString(), "Success, change path piece!");
                             nextType = getNextType();
                         }
-                    } else if (isDead || isWin) {
+                    }/* else if (isDead || isWin) {
                         reset();
-                    }
+                    }*/
                 }
 
-                if(gameStartMenu != null && gameState == InGameStates.GAME_START_MENU)
-                    gameStartMenu.onTouchPress((int)motionEvent.getX(), (int)motionEvent.getY());
-
-                break;
-
-            // Player has removed finger from screen
-            case MotionEvent.ACTION_UP:
-
-                // Set isMoving so Bob does not move
-                //isMoving = false;
+                // Handling Start Menu clicks
                 if(gameStartMenu != null && gameState == InGameStates.GAME_START_MENU)
                     if(gameStartMenu.onTouchRelease((int)motionEvent.getX(), (int)motionEvent.getY()) == InGameMenuConstants.OK_BUTTON_PRESSED)
                         gameState = InGameStates.GAME_PLAYING;
 
                 break;
         }
+    }
+
+    /**
+     * Checks if point is within corner path piece
+     * @param x
+     * @param y
+     * @return
+     */
+    private boolean isWithinCornerPiece(float x, float y) {
+        if(x >= width-boxSize && x <= width && y >= 0 && y <= boxSize)
+            return true;
+        return false;
     }
 
     @Override
@@ -478,6 +511,9 @@ public class Game extends AbstractGameStateView implements GameStateView {
         pathPieces = new PathPieceHandler();
 
         gameStartMenu = new GameStartMenu(width, height, boxSize/2, resources);
+
+        cornerX = width - boxSize;
+        cornerY = 0;
     }
 
     private void drawWater(Canvas canvas) {
@@ -583,10 +619,10 @@ public class Game extends AbstractGameStateView implements GameStateView {
         linePaint.setColor(Color.argb(150,  255, 255, 255));
         linePaint.setStrokeWidth(10);
 
-        canvas.drawLine(width-boxSize, 0, width, 0, linePaint);
-        canvas.drawLine(width, 0, width, boxSize, linePaint);
-        canvas.drawLine(width, boxSize, width-boxSize, boxSize, linePaint);
-        canvas.drawLine(width-boxSize, boxSize, width-boxSize, 0, linePaint);
+        canvas.drawLine(cornerX, cornerY, cornerX+boxSize, cornerY, linePaint);
+        canvas.drawLine(cornerX+boxSize, cornerY, cornerX+boxSize, cornerY+boxSize, linePaint);
+        canvas.drawLine(cornerX+boxSize, cornerY+boxSize, cornerX, cornerY+boxSize, linePaint);
+        canvas.drawLine(cornerX, cornerY+boxSize, cornerX, cornerY, linePaint);
     }
 
 
@@ -596,7 +632,7 @@ public class Game extends AbstractGameStateView implements GameStateView {
 
         //corner frame and next path to place
         drawCornerFrame(canvas);
-        rockPaths.drawImage(nextType, width-boxSize, 0, canvas); //drawRoadPiece(nextType, width-boxSize, 0);
+        rockPaths.drawImage(nextType, cornerX, cornerY, canvas); //drawRoadPiece(nextType, width-boxSize, 0);
 
         //placed path
         for(int i = 0; i < numberOfBoxesWidth; i++) {
