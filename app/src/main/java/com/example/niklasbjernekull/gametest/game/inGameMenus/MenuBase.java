@@ -17,22 +17,28 @@ import com.example.niklasbjernekull.gametest.drawables.DrawableImage;
  */
 
 public abstract class MenuBase {
-    private int x, y;
-    private int size_x, size_y;
+    protected int x, y;
+    protected int size_x, size_y;
     private int corner = 100;
     private Paint roundPaint;
+
     private DrawableImage abortButton;
     private DrawableImage okButton;
     private DrawableImage abortButtonPressed;
     private DrawableImage okButtonPressed;
+
     private int buttonSpaceDivider = 30;
     private int buttonRatio = 4;
     private int buttonSpaceSide;
     private int buttonSpaceBottom;
     private int buttonWidth;
     private int buttonHeight;
+
     private boolean abortButtonActive = false;
     private boolean okButtonActive = false;
+
+    protected String headerText;
+    protected String bodyText;
 
     /**
      * Constructor that takes coordinates for upper left corner and the width and height of the

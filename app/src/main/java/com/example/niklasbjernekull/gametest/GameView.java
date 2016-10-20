@@ -163,6 +163,7 @@ class GameView extends SurfaceView implements Runnable {
     private void initialConfiguration() {
         splashScreen = new SplashScreen(this.getResources(), gameData, canvas.getWidth() ,canvas.getHeight());
         game = new Game(this.getResources(), gameData, canvas.getWidth(), canvas.getHeight());
+
         gameStateView = splashScreen;
     }
 

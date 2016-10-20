@@ -1,18 +1,17 @@
 package com.example.niklasbjernekull.gametest.game.inGameMenus;
 
-
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 
 import com.example.niklasbjernekull.gametest.R;
 
 /**
- * Created by Niklas on 2016-10-06.
+ * Created by Niklas.bjernekull on 2016-10-20.
  */
 
-public class GameStartMenu extends MenuBase {
+public class GameOverMenu extends MenuBase {
 
-    public GameStartMenu(int width, int height, int space, Resources res) {
+    public GameOverMenu(int width, int height, int space, Resources res) {
         super(width, height, space);
         setAbortButton(BitmapFactory.decodeResource(res, R.drawable.quit_button2),
                 BitmapFactory.decodeResource(res, R.drawable.quit_button3));
@@ -20,10 +19,3 @@ public class GameStartMenu extends MenuBase {
                 BitmapFactory.decodeResource(res, R.drawable.start_button3));
     }
 }
-
-/* How to draw text
-http://www.helloandroid.com/tutorials/how-draw-multiline-text-canvas-easily
-
-https://www.skoumal.net/en/android-how-draw-text-bitmap/
-https://www.skoumal.net/en/android-drawing-multiline-text-on-bitmap/
- */

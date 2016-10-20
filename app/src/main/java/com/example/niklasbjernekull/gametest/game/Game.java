@@ -1,5 +1,6 @@
 package com.example.niklasbjernekull.gametest.game;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -24,6 +25,7 @@ import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Star;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Tree;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Water;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.collections.RockPaths;
+import com.example.niklasbjernekull.gametest.game.inGameMenus.GameOverMenu;
 import com.example.niklasbjernekull.gametest.game.inGameMenus.GameStartMenu;
 import com.example.niklasbjernekull.gametest.game.path.PathPieceHandler;
 import com.example.niklasbjernekull.gametest.gameData.GameData;
@@ -107,6 +109,7 @@ public class Game extends AbstractGameStateView implements GameStateView {
     private PathPieceHandler pathPieces;
 
     private GameStartMenu gameStartMenu;
+    private GameOverMenu gameOverMenu;
 
     private Resources resources;
 
@@ -132,6 +135,9 @@ public class Game extends AbstractGameStateView implements GameStateView {
     // We will also do other things like collision detection.
     @Override
     public void update() {
+
+        if(gameState != InGameStates.GAME_OVER && (isDead || isWin))
+            gameState = InGameStates.GAME_OVER;
 
         if(gameState != InGameStates.GAME_PLAYING)
             return;
@@ -226,6 +232,9 @@ public class Game extends AbstractGameStateView implements GameStateView {
         if(gameState == InGameStates.GAME_START_MENU)
             gameStartMenu.draw(canvas);
 
+        if(gameState == InGameStates.GAME_OVER)
+            gameOverMenu.draw(canvas);
+
     }
 
     // The SurfaceView class implements onTouchListener
@@ -249,8 +258,13 @@ public class Game extends AbstractGameStateView implements GameStateView {
                 if(gameStartMenu != null && gameState == InGameStates.GAME_START_MENU)
                     gameStartMenu.onTouchPress((int)motionEvent.getX(), (int)motionEvent.getY());
 
+                // Handling Start Menu clicks
+                if(gameOverMenu != null && gameState == InGameStates.GAME_OVER)
+                    gameOverMenu.onTouchPress((int)motionEvent.getX(), (int)motionEvent.getY());
+
                 break;
 
+            // Player is dragging finger on screen
             case MotionEvent.ACTION_MOVE:
                 if(gameState == InGameStates.GAME_PLAYING) {
                     if (isDragging) {
@@ -262,7 +276,7 @@ public class Game extends AbstractGameStateView implements GameStateView {
 
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
-                if(gameState == InGameStates.GAME_PLAYING) {
+                if(gameState == InGameStates.GAME_PLAYING) { //&& isDragging (if clicking isn't allowed)
                     isDragging = false;
                     cornerX = width-boxSize;
                     cornerY = 0;
@@ -284,6 +298,15 @@ public class Game extends AbstractGameStateView implements GameStateView {
                 if(gameStartMenu != null && gameState == InGameStates.GAME_START_MENU)
                     if(gameStartMenu.onTouchRelease((int)motionEvent.getX(), (int)motionEvent.getY()) == InGameMenuConstants.OK_BUTTON_PRESSED)
                         gameState = InGameStates.GAME_PLAYING;
+
+                // Handling Start Menu clicks
+                if(gameOverMenu != null && gameState == InGameStates.GAME_OVER)
+                    if(gameOverMenu.onTouchRelease((int)motionEvent.getX(), (int)motionEvent.getY()) == InGameMenuConstants.OK_BUTTON_PRESSED) {
+                        gameState = InGameStates.GAME_PLAYING;
+                        isDead = false;
+                        isWin = false;
+                        reset();
+                    }
 
                 break;
         }
@@ -511,6 +534,8 @@ public class Game extends AbstractGameStateView implements GameStateView {
         pathPieces = new PathPieceHandler();
 
         gameStartMenu = new GameStartMenu(width, height, boxSize/2, resources);
+
+        gameOverMenu = new GameOverMenu(width, height, boxSize/2, resources);
 
         cornerX = width - boxSize;
         cornerY = 0;
