@@ -2,6 +2,7 @@ package com.example.niklasbjernekull.gametest.game;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,12 +12,16 @@ import android.view.MotionEvent;
 
 import com.example.niklasbjernekull.gametest.AbstractGameStateView;
 import com.example.niklasbjernekull.gametest.GameStateView;
+import com.example.niklasbjernekull.gametest.R;
 import com.example.niklasbjernekull.gametest.constants.GameStates;
 import com.example.niklasbjernekull.gametest.constants.InGameMenuConstants;
 import com.example.niklasbjernekull.gametest.constants.InGameStates;
+import com.example.niklasbjernekull.gametest.drawables.DrawableImage;
 import com.example.niklasbjernekull.gametest.drawables.animatedDecoration.Coin;
 import com.example.niklasbjernekull.gametest.drawables.animatedDecoration.directable.Ember;
+import com.example.niklasbjernekull.gametest.drawables.staticDecoration.FishingPole;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Flower;
+import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Frond;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Grass;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Road;
 import com.example.niklasbjernekull.gametest.drawables.staticDecoration.Rock;
@@ -101,6 +106,8 @@ public class Game extends AbstractGameStateView implements GameStateView {
     private Coin coin;
     private Road road;
     private Water water;
+    private Frond frond;
+    private FishingPole pole;
 
     boolean isFixedWalking = true;
 
@@ -179,6 +186,8 @@ public class Game extends AbstractGameStateView implements GameStateView {
     @Override
     public void draw(Canvas canvas) {
 
+        canvas.save(); //?
+
         // Draw the background color
         canvas.drawColor(Color.argb(255,  140, 200, 22));
 
@@ -201,6 +210,7 @@ public class Game extends AbstractGameStateView implements GameStateView {
         canvas.drawCircle(emberXPosition, emberYPosition, 20, circlePaint);
 
         flower.draw(canvas);
+        pole.draw(canvas);
 
         coin.setPos(roadWidth+40, roadHeight+40);
         coin.draw(canvas);
@@ -226,6 +236,7 @@ public class Game extends AbstractGameStateView implements GameStateView {
         tree.setPos(width - 300, height - 220);
         tree.draw(canvas);
         tree.setPos(750, 30);
+        frond.draw(canvas);
 
         debugDraw(canvas);
 
@@ -235,6 +246,7 @@ public class Game extends AbstractGameStateView implements GameStateView {
         if(gameState == InGameStates.GAME_OVER)
             gameOverMenu.draw(canvas);
 
+        canvas.restore(); //?
     }
 
     // The SurfaceView class implements onTouchListener
@@ -373,6 +385,11 @@ public class Game extends AbstractGameStateView implements GameStateView {
 
         water = new Water(res);
         water.scale(boxSize, boxSize);
+
+        frond = new Frond(res, (int)(roadWidth+(boxSize*1.25)), height-200);
+
+        pole = new FishingPole(res, width-200, height-170);
+        pole.scale(150,150);
     }
 
 
